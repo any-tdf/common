@@ -58,6 +58,8 @@ jobs:
         needs: check-version
         if: needs.check-version.outputs.changed == 'true'
         runs-on: ubuntu-latest
+        env:
+            NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
 
         steps:
             - name: Checkout
@@ -84,7 +86,15 @@ jobs:
             - name: Build
               run: bun run build
 
+            - name: Configure npm authentication
+              shell: bash
+              run: |
+                  if [[ -z "$NODE_AUTH_TOKEN" ]]; then
+                      echo "::error::Missing NODE_AUTH_TOKEN repository secret."
+                      exit 1
+                  fi
+
+                  npm config set //registry.npmjs.org/:_authToken "$NODE_AUTH_TOKEN"
+
             - name: Publish
               run: npm publish --provenance --access public --tag alpha
-              env:
-                  NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
