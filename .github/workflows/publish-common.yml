@@ -86,3 +86,5 @@ jobs:
 
             - name: Publish
               run: npm publish --provenance --access public --tag alpha
+              env:
+                  NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
